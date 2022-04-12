@@ -10,6 +10,7 @@ body {
 .orbit {
   --size: 12rem;
   --speed: 120s;
+
   .center-image {
     width: var(--size);
     position: relative;
@@ -36,6 +37,7 @@ body {
     --text-bg: var(--green-dark);
     transform-origin: center;
     animation: orbit var(--speed) linear infinite;
+
     &:hover {
       animation-play-state: paused;
       --orbit-play-state: paused;
@@ -47,50 +49,70 @@ body {
     --text-bg: blue;
 
     position: absolute;
-    width: 8rem;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    font-weight: 500;
-    color: var(--white-light);
     text-align: center;
     line-height: 1;
     display: grid;
     place-items: center;
+    transform-origin: calc(-15rem + 50%);
 
-    &:hover {
-      --throb-play-state: paused;
+    
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+      --throb-play-state: pause;
     }
 
     @for $i from 0 through 7 {
       &:nth-child(#{$i + 1}) {
-        --throb-delay: #{500ms * $i};
+        --throb-delay: #{-500ms * $i}; // will start immediately in middle of animation
+        transform: translateX(15rem) rotate(#{45deg * $i});
+
+        & > .wrapper {
+          animation: orbit var(--speed) calc(var(--speed) / 8 * #{$i} * -1) linear reverse infinite var(--orbit-play-state, running);
+        }
       }
     }
-    & > * {
-      width: 100%;
-      height: 100%;
+
+    & > .wrapper {
+      width: 8rem;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
       display: grid;
       place-items: center;
-      border-radius: inherit;
+      font-weight: 500;
+      color: var(--white-light);
 
-      position: absolute;
-      animation: orbit var(--speed) linear reverse infinite,
-        throb 1s var(--throb-delay) ease-in-out infinite alternate;
-      animation-play-state: var(--orbit-play-state, running),
-        var(--throb-play-state, running);
+      & > * {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        border-radius: inherit;
+
+        position: absolute;
+        animation: throb 1s var(--throb-delay, 0ms) ease-in-out infinite alternate var(--throb-play-state, running);
+      }
+
+      & > div {
+        background-color: var(--icon-bg);
+      }
+
+      & > p {
+        background: var(--text-bg);
+        transition: opacity 500ms;
+        opacity: 0;
+      }
     }
 
-    > div {
-      background-color: var(--icon-bg);
-    }
+    
 
-    > p {
-      background: var(--text-bg);
-      transition: opacity 500ms;
-      opacity: 0;
-    }
-
-    &:hover > p {
+    &:hover > .wrapper > p,
+    &:focus > .wrapper > p,
+    &:focus-within > .wrapper > p,
+    & > .wrapper:hover > p,
+    & > .wrapper:focus > p,
+    & > .wrapper:focus-within > p {
       opacity: 1;
     }
   }
@@ -98,64 +120,76 @@ body {
   li:nth-child(1) {
     --icon-bg: var(--blue-light);
     --text-bg: var(--blue-dark);
-    transform: translate(15rem, 0rem);
   }
 
   li:nth-child(2) {
     --icon-bg: var(--green-light);
     --text-bg: var(--green-dark);
-    transform: translate(10rem, 10rem);
   }
 
   li:nth-child(3) {
     --icon-bg: var(--pink-light);
     --text-bg: var(--pink-dark);
-    transform: translate(0, 15rem);
   }
   li:nth-child(4) {
     --icon-bg: var(--red-light);
     --text-bg: var(--red-dark);
-    transform: translate(-10rem, 10rem);
   }
 
   li:nth-child(5) {
     --icon-bg: var(--brown-light);
     --text-bg: var(--brown-dark);
-    transform: translate(-15rem, 0rem);
   }
 
   li:nth-child(6) {
     --icon-bg: var(--yellow-light);
     --text-bg: var(--yellow-dark);
-    transform: translate(-10rem, -10rem);
   }
 
   li:nth-child(7) {
     --icon-bg: var(--purple-light);
     --text-bg: var(--purple-dark);
-    transform: translate(0, -15rem);
   }
   li:nth-child(8) {
     --icon-bg: var(--orange-light);
     --text-bg: var(--orange-dark);
-    transform: translate(10rem, -10rem);
   }
 }
 
 @keyframes orbit {
   100% {
-    rotate: 1turn;
+    transform: rotate(1turn);
   }
 }
 
 @keyframes hold-position {
   100% {
-    rotate: -1turn;
+    transform: rotate(-1turn);
   }
 }
 
 @keyframes throb {
   100% {
-    scale: 1.05;
+    transform: scale(1.05);
+  }
+}
+
+@supports (rotate: 0deg) {
+  @keyframes orbit {
+    100% {
+      rotate: 1turn;
+    }
+  }
+
+  @keyframes hold-position {
+    100% {
+      rotate: -1turn;
+    }
+  }
+
+  @keyframes throb {
+    100% {
+      scale: 1.05;
+    }
   }
 }
